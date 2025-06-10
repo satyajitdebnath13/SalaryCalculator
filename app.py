@@ -53,13 +53,13 @@ class SalaryCalculator:
         pf_eligible_salary = min(actual_basic_salary, 15000)
         return pf_eligible_salary * 0.12
     
-    def calculate_esi(self, actual_basic_salary):
-        """Calculate Employee State Insurance (0.75% of actual basic salary, only if monthly rate ≤ ₹21,000)"""
+    def calculate_esi(self):
+        """Calculate Employee State Insurance (0.75% of monthly salary rate, only if rate ≤ ₹21,000)"""
         # ESI is only applicable if monthly salary rate is ≤ ₹21,000
         if self.salary_rate > 21000:
             return 0
         else:
-            return actual_basic_salary * 0.0075
+            return self.salary_rate * 0.0075
     
     def calculate_professional_tax(self, gross_salary):
         """Calculate Professional Tax based on gross salary slabs"""
@@ -87,9 +87,9 @@ class SalaryCalculator:
         # Step 3: Calculate gross salary after attendance adjustments
         gross_salary = self.salary_rate + overtime_addition - absent_deduction - late_entry_deduction
         
-        # Step 4: Calculate statutory deductions on actual basic salary
-        pf_deduction = self.calculate_pf(actual_basic_salary)
-        esi_deduction = self.calculate_esi(actual_basic_salary)
+        # Step 4: Calculate statutory deductions
+        pf_deduction = self.calculate_pf(actual_basic_salary)  # PF on basic salary
+        esi_deduction = self.calculate_esi()  # ESI on salary rate
         professional_tax = self.calculate_professional_tax(gross_salary)
         
         # Step 5: Calculate total deductions and net salary

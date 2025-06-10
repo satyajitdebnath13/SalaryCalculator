@@ -762,7 +762,7 @@
                         <td>Employee State Insurance</td>
                         <td><span class="badge statutory">Statutory</span></td>
                         <td class="amount">-₹{{ "%.2f"|format(salary_data.esi_deduction) }}</td>
-                        <td>0.75% of actual basic salary{% if salary_data.salary_rate > 21000 %} (N/A - rate exceeds ₹21,000){% endif %}</td>
+                        <td>0.75% of monthly salary rate{% if salary_data.salary_rate > 21000 %} (N/A - rate exceeds ₹21,000){% endif %}</td>
                     </tr>
                     <tr>
                         <td>Professional Tax</td>
