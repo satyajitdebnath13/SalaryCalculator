@@ -620,9 +620,9 @@
             <div class="calculation-card earnings-card scale-in">
                 <div class="card-header">
                     <div class="card-icon">
-                        <i class="fas fa-plus-circle"></i>
+                        <i class="fas fa-calculator"></i>
                     </div>
-                    <h3 class="card-title">Earnings</h3>
+                    <h3 class="card-title">Salary Calculation</h3>
                 </div>
                 
                 <div class="calc-item">
@@ -632,12 +632,26 @@
                 
                 <div class="calc-item">
                     <span class="calc-label">Overtime Addition</span>
-                    <span class="calc-value positive">₹{{ "%.2f"|format(salary_data.overtime_addition) }}</span>
+                    <span class="calc-value positive">+₹{{ "%.2f"|format(salary_data.overtime_addition) }}</span>
                 </div>
                 
+                {% if salary_data.absent_deduction > 0 %}
                 <div class="calc-item">
-                    <span class="calc-label">Gross Salary (After Attendance)</span>
-                    <span class="calc-value">₹{{ "%.2f"|format(salary_data.gross_salary) }}</span>
+                    <span class="calc-label">Absent Days Deduction</span>
+                    <span class="calc-value negative">-₹{{ "%.2f"|format(salary_data.absent_deduction) }}</span>
+                </div>
+                {% endif %}
+                
+                {% if salary_data.late_entry_deduction > 0 %}
+                <div class="calc-item">
+                    <span class="calc-label">Late Entry Deduction</span>
+                    <span class="calc-value negative">-₹{{ "%.2f"|format(salary_data.late_entry_deduction) }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="calc-item" style="border-top: 2px solid var(--primary-color); margin-top: 10px; padding-top: 10px;">
+                    <span class="calc-label"><strong>Gross Salary</strong></span>
+                    <span class="calc-value" style="font-weight: bold; font-size: 1.1em;">₹{{ "%.2f"|format(salary_data.gross_salary) }}</span>
                 </div>
                 
                 <div class="calc-item">
@@ -646,43 +660,33 @@
                 </div>
             </div>
 
-            <!-- Deductions Card -->
+            <!-- Statutory Deductions Card -->
             <div class="calculation-card deductions-card scale-in">
                 <div class="card-header">
                     <div class="card-icon">
                         <i class="fas fa-minus-circle"></i>
                     </div>
-                    <h3 class="card-title">Deductions</h3>
-                </div>
-                
-                <div class="calc-item">
-                    <span class="calc-label">Absent Days Deduction</span>
-                    <span class="calc-value negative">₹{{ "%.2f"|format(salary_data.absent_deduction) }}</span>
-                </div>
-                
-                <div class="calc-item">
-                    <span class="calc-label">Late Entry Deduction</span>
-                    <span class="calc-value negative">₹{{ "%.2f"|format(salary_data.late_entry_deduction) }}</span>
+                    <h3 class="card-title">Statutory Deductions</h3>
                 </div>
                 
                 <div class="calc-item">
                     <span class="calc-label">Provident Fund (12%)</span>
-                    <span class="calc-value negative">₹{{ "%.2f"|format(salary_data.pf_deduction) }}</span>
+                    <span class="calc-value negative">-₹{{ "%.2f"|format(salary_data.pf_deduction) }}</span>
                 </div>
                 
                 <div class="calc-item">
                     <span class="calc-label">ESI (0.75%)</span>
-                    <span class="calc-value negative">₹{{ "%.2f"|format(salary_data.esi_deduction) }}</span>
+                    <span class="calc-value negative">-₹{{ "%.2f"|format(salary_data.esi_deduction) }}</span>
                 </div>
                 
                 <div class="calc-item">
                     <span class="calc-label">Professional Tax</span>
-                    <span class="calc-value negative">₹{{ "%.2f"|format(salary_data.professional_tax) }}</span>
+                    <span class="calc-value negative">-₹{{ "%.2f"|format(salary_data.professional_tax) }}</span>
                 </div>
                 
-                <div class="calc-item">
-                    <span class="calc-label">Total Deductions</span>
-                    <span class="calc-value">₹{{ "%.2f"|format(salary_data.total_all_deductions) }}</span>
+                <div class="calc-item" style="border-top: 2px solid var(--error-color); margin-top: 10px; padding-top: 10px;">
+                    <span class="calc-label"><strong>Total Statutory Deductions</strong></span>
+                    <span class="calc-value" style="font-weight: bold;">-₹{{ "%.2f"|format(salary_data.total_statutory_deductions) }}</span>
                 </div>
             </div>
         </div>
@@ -716,33 +720,37 @@
                     </tr>
                     <tr>
                         <td>Overtime Addition</td>
-                        <td><span class="badge earnings">Earnings</span></td>
-                        <td class="amount">₹{{ "%.2f"|format(salary_data.overtime_addition) }}</td>
+                        <td><span class="badge earnings">Addition</span></td>
+                        <td class="amount">+₹{{ "%.2f"|format(salary_data.overtime_addition) }}</td>
                         <td>{{ salary_data.overtime_days }} days × half day rate</td>
                     </tr>
+                    {% if salary_data.absent_deduction > 0 %}
+                    <tr>
+                        <td>Absent Days Deduction</td>
+                        <td><span class="badge attendance">Attendance</span></td>
+                        <td class="amount">-₹{{ "%.2f"|format(salary_data.absent_deduction) }}</td>
+                        <td>{{ salary_data.absent_days }} days × full day rate</td>
+                    </tr>
+                    {% endif %}
+                    {% if salary_data.late_entry_deduction > 0 %}
+                    <tr>
+                        <td>Late Entry Deduction</td>
+                        <td><span class="badge attendance">Attendance</span></td>
+                        <td class="amount">-₹{{ "%.2f"|format(salary_data.late_entry_deduction) }}</td>
+                        <td>{{ salary_data.late_entry_days }} days (after 3 free days)</td>
+                    </tr>
+                    {% endif %}
                     <tr style="background: var(--gray-50);">
                         <td><strong>Gross Salary</strong></td>
-                        <td><span class="badge earnings">Gross</span></td>
+                        <td><span class="badge gross">Gross</span></td>
                         <td class="amount"><strong>₹{{ "%.2f"|format(salary_data.gross_salary) }}</strong></td>
                         <td><strong>After attendance adjustments</strong></td>
                     </tr>
                     <tr>
                         <td>Basic Salary (55%)</td>
-                        <td><span class="badge earnings">Calculated</span></td>
+                        <td><span class="badge calculated">Calculated</span></td>
                         <td class="amount">₹{{ "%.2f"|format(salary_data.basic_salary) }}</td>
                         <td>55% of gross salary</td>
-                    </tr>
-                    <tr>
-                        <td>Absent Days Deduction</td>
-                        <td><span class="badge deduction">Deduction</span></td>
-                        <td class="amount">-₹{{ "%.2f"|format(salary_data.absent_deduction) }}</td>
-                        <td>{{ salary_data.absent_days }} days × full day rate</td>
-                    </tr>
-                    <tr>
-                        <td>Late Entry Deduction</td>
-                        <td><span class="badge deduction">Deduction</span></td>
-                        <td class="amount">-₹{{ "%.2f"|format(salary_data.late_entry_deduction) }}</td>
-                        <td>{{ salary_data.late_entry_days }} days (after 3 free days)</td>
                     </tr>
                     <tr>
                         <td>Provident Fund</td>
@@ -819,6 +827,21 @@
             .badge.earnings {
                 background: rgba(16, 185, 129, 0.1);
                 color: var(--success-color);
+            }
+            
+            .badge.attendance {
+                background: rgba(249, 115, 22, 0.1);
+                color: #ea580c;
+            }
+            
+            .badge.gross {
+                background: rgba(99, 102, 241, 0.1);
+                color: #6366f1;
+            }
+            
+            .badge.calculated {
+                background: rgba(34, 197, 94, 0.1);
+                color: #059669;
             }
             
             .badge.deduction {
