@@ -691,11 +691,11 @@
             </div>
         </div>
 
-        <!-- Professional Tax Information -->
-        {% if salary_data.basic_salary > 21000 %}
+        <!-- ESI Information -->
+        {% if salary_data.salary_rate > 21000 %}
         <div class="tax-info scale-in">
             <h4><i class="fas fa-info-circle"></i> ESI Information</h4>
-            <p>ESI is not applicable as basic salary (₹{{ "%.2f"|format(salary_data.basic_salary) }}) exceeds ₹21,000</p>
+            <p>ESI is not applicable as monthly salary rate (₹{{ "%.2f"|format(salary_data.salary_rate) }}) exceeds ₹21,000</p>
         </div>
         {% endif %}
 
@@ -762,7 +762,7 @@
                         <td>Employee State Insurance</td>
                         <td><span class="badge statutory">Statutory</span></td>
                         <td class="amount">-₹{{ "%.2f"|format(salary_data.esi_deduction) }}</td>
-                        <td>0.75% of actual basic salary{% if salary_data.basic_salary > 21000 %} (N/A - exceeds ₹21,000){% endif %}</td>
+                        <td>0.75% of actual basic salary{% if salary_data.salary_rate > 21000 %} (N/A - rate exceeds ₹21,000){% endif %}</td>
                     </tr>
                     <tr>
                         <td>Professional Tax</td>

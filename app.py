@@ -54,9 +54,9 @@ class SalaryCalculator:
         return pf_eligible_salary * 0.12
     
     def calculate_esi(self, actual_basic_salary):
-        """Calculate Employee State Insurance (0.75% of actual basic salary, only if basic ≤ ₹21,000)"""
-        # ESI is only applicable if actual basic salary is ≤ ₹21,000
-        if actual_basic_salary > 21000:
+        """Calculate Employee State Insurance (0.75% of actual basic salary, only if monthly rate ≤ ₹21,000)"""
+        # ESI is only applicable if monthly salary rate is ≤ ₹21,000
+        if self.salary_rate > 21000:
             return 0
         else:
             return actual_basic_salary * 0.0075
@@ -117,7 +117,8 @@ class SalaryCalculator:
             'net_salary': round(net_salary),
             'month': calendar.month_name[self.month],
             'month_number': self.month,
-            'year': self.year
+            'year': self.year,
+            'esi_eligible': self.salary_rate <= 21000  # For template display logic
         }
 
 def generate_payslip_pdf(employee_name, salary_data):
@@ -172,7 +173,7 @@ def generate_payslip_pdf(employee_name, salary_data):
         ['Monthly Rate', f"{salary_data['salary_rate']:.2f}", 'Absent Days Deduction', f"{salary_data['absent_deduction']:.2f}"],
         ['Overtime Addition', f"{salary_data['overtime_addition']:.2f}", 'Late Entry Deduction', f"{salary_data['late_entry_deduction']:.2f}"],
         ['Basic (55% of Gross)', f"{salary_data['basic_salary']:.2f}", 'PF (12% on max ₹15K)', f"{salary_data['pf_deduction']:.2f}"],
-        ['', '', f"ESI (0.75%{' - N/A' if salary_data['basic_salary'] > 21000 else ''})", f"{salary_data['esi_deduction']:.2f}"],
+        ['', '', f"ESI (0.75%{' - N/A' if salary_data['salary_rate'] > 21000 else ''})", f"{salary_data['esi_deduction']:.2f}"],
         ['', '', 'Professional Tax', f"{salary_data['professional_tax']:.2f}"],
         ['GROSS SALARY', f"{salary_data['gross_salary']:.2f}", 'TOTAL DEDUCTIONS', f"{salary_data['total_all_deductions']:.2f}"],
         ['', '', 'NET SALARY', f"{salary_data['net_salary']:.0f}"]
