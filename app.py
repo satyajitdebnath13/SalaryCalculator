@@ -12,8 +12,8 @@ import os
 app = Flask(__name__)
 
 class SalaryCalculator:
-    def __init__(self, basic_salary, absent_days, late_entry_days, overtime_days, month=None, year=None):
-        self.basic_salary = float(basic_salary)
+    def __init__(self, salary_rate, absent_days, late_entry_days, overtime_days, month=None, year=None):
+        self.salary_rate = float(salary_rate)  # Changed from basic_salary to salary_rate
         self.absent_days = int(absent_days)
         self.late_entry_days = int(late_entry_days)
         self.overtime_days = int(overtime_days)
@@ -29,11 +29,11 @@ class SalaryCalculator:
         
         # Calculate days in month
         self.days_in_month = calendar.monthrange(self.year, self.month)[1]
-        self.daily_salary = self.basic_salary / self.days_in_month
+        self.daily_rate = self.salary_rate / self.days_in_month  # Changed from daily_salary to daily_rate
     
     def calculate_absent_deduction(self):
-        """Calculate deduction for absent days (full day salary per absent day)"""
-        return self.absent_days * self.daily_salary
+        """Calculate deduction for absent days (full day rate per absent day)"""
+        return self.absent_days * self.daily_rate
     
     def calculate_late_entry_deduction(self):
         """Calculate deduction for late entry days (half day after 3 free days)"""
@@ -41,28 +41,28 @@ class SalaryCalculator:
             return 0
         else:
             deductible_late_days = self.late_entry_days - 3
-            return deductible_late_days * (self.daily_salary / 2)
+            return deductible_late_days * (self.daily_rate / 2)
     
     def calculate_overtime_addition(self):
-        """Calculate addition for overtime days (half day salary per overtime day)"""
-        return self.overtime_days * (self.daily_salary / 2)
+        """Calculate addition for overtime days (half day rate per overtime day)"""
+        return self.overtime_days * (self.daily_rate / 2)
     
-    def calculate_pf(self):
-        """Calculate Provident Fund (12% of basic salary, maximum on ₹15,000)"""
+    def calculate_pf(self, actual_basic_salary):
+        """Calculate Provident Fund (12% of actual basic salary, maximum on ₹15,000)"""
         # PF is calculated on maximum of ₹15,000 basic salary
-        pf_eligible_salary = min(self.basic_salary, 15000)
+        pf_eligible_salary = min(actual_basic_salary, 15000)
         return pf_eligible_salary * 0.12
     
-    def calculate_esi(self):
-        """Calculate Employee State Insurance (0.75% of basic salary, only if basic ≤ ₹21,000)"""
-        # ESI is only applicable if basic salary is ≤ ₹21,000
-        if self.basic_salary > 21000:
+    def calculate_esi(self, actual_basic_salary):
+        """Calculate Employee State Insurance (0.75% of actual basic salary, only if basic ≤ ₹21,000)"""
+        # ESI is only applicable if actual basic salary is ≤ ₹21,000
+        if actual_basic_salary > 21000:
             return 0
         else:
-            return self.basic_salary * 0.0075
+            return actual_basic_salary * 0.0075
     
     def calculate_professional_tax(self, gross_salary):
-        """Calculate Professional Tax based on salary slabs"""
+        """Calculate Professional Tax based on gross salary slabs"""
         if gross_salary <= 10000:
             return 0
         elif gross_salary <= 15000:
@@ -75,42 +75,40 @@ class SalaryCalculator:
             return 200
     
     def calculate_total_salary(self):
-        """Calculate the complete salary breakdown"""
-        # Base calculations
+        """Calculate the complete salary breakdown with corrected logic"""
+        # Step 1: Calculate attendance adjustments on salary rate
         absent_deduction = self.calculate_absent_deduction()
         late_entry_deduction = self.calculate_late_entry_deduction()
         overtime_addition = self.calculate_overtime_addition()
         
-        # Gross earnings calculation
-        gross_earnings = self.basic_salary + overtime_addition
+        # Step 2: Calculate gross salary after attendance adjustments
+        gross_salary = self.salary_rate + overtime_addition - absent_deduction - late_entry_deduction
         
-        # Attendance adjusted salary (after attendance deductions)
-        attendance_adjusted_salary = gross_earnings - absent_deduction - late_entry_deduction
+        # Step 3: Calculate actual basic salary (55% of gross salary)
+        actual_basic_salary = gross_salary * 0.55
         
-        # Statutory deductions (calculated on basic salary, not adjusted salary)
-        pf_deduction = self.calculate_pf()
-        esi_deduction = self.calculate_esi()
-        professional_tax = self.calculate_professional_tax(attendance_adjusted_salary)
+        # Step 4: Calculate statutory deductions on actual basic salary
+        pf_deduction = self.calculate_pf(actual_basic_salary)
+        esi_deduction = self.calculate_esi(actual_basic_salary)
+        professional_tax = self.calculate_professional_tax(gross_salary)
         
-        # Total deductions calculation
+        # Step 5: Calculate total deductions and net salary
         total_statutory_deductions = pf_deduction + esi_deduction + professional_tax
         total_all_deductions = absent_deduction + late_entry_deduction + total_statutory_deductions
-        
-        # Net salary calculation
-        net_salary = gross_earnings - total_all_deductions
+        net_salary = gross_salary - total_statutory_deductions
         
         return {
-            'basic_salary': round(self.basic_salary, 2),
+            'salary_rate': round(self.salary_rate, 2),  # The input rate
+            'basic_salary': round(actual_basic_salary, 2),  # 55% of gross salary
             'days_in_month': self.days_in_month,
-            'daily_salary': round(self.daily_salary, 2),
+            'daily_rate': round(self.daily_rate, 2),  # Daily rate (not daily basic)
             'absent_days': self.absent_days,
             'absent_deduction': round(absent_deduction, 2),
             'late_entry_days': self.late_entry_days,
             'late_entry_deduction': round(late_entry_deduction, 2),
             'overtime_days': self.overtime_days,
             'overtime_addition': round(overtime_addition, 2),
-            'gross_earnings': round(gross_earnings, 2),
-            'attendance_adjusted_salary': round(attendance_adjusted_salary, 2),
+            'gross_salary': round(gross_salary, 2),  # After attendance adjustments
             'pf_deduction': round(pf_deduction, 2),
             'esi_deduction': round(esi_deduction, 2),
             'professional_tax': round(professional_tax, 2),
@@ -150,7 +148,7 @@ def generate_payslip_pdf(employee_name, salary_data):
         ['Employee Name:', employee_name],
         ['Month/Year:', f"{salary_data['month']} {salary_data['year']}"],
         ['Days in Month:', str(salary_data['days_in_month'])],
-        ['Daily Salary:', f"₹ {salary_data['daily_salary']:.2f}"]
+        ['Daily Rate:', f"₹ {salary_data['daily_rate']:.2f}"]
     ]
     
     employee_table = Table(employee_data, colWidths=[2*inch, 3*inch])
@@ -171,12 +169,12 @@ def generate_payslip_pdf(employee_name, salary_data):
     # Salary breakdown table
     salary_breakdown = [
         ['EARNINGS', 'AMOUNT (₹)', 'DEDUCTIONS', 'AMOUNT (₹)'],
-        ['Basic Salary', f"{salary_data['basic_salary']:.2f}", 'Absent Days Deduction', f"{salary_data['absent_deduction']:.2f}"],
+        ['Monthly Rate', f"{salary_data['salary_rate']:.2f}", 'Absent Days Deduction', f"{salary_data['absent_deduction']:.2f}"],
         ['Overtime Addition', f"{salary_data['overtime_addition']:.2f}", 'Late Entry Deduction', f"{salary_data['late_entry_deduction']:.2f}"],
-        ['', '', 'PF (12% on max ₹15K)', f"{salary_data['pf_deduction']:.2f}"],
+        ['Basic (55% of Gross)', f"{salary_data['basic_salary']:.2f}", 'PF (12% on max ₹15K)', f"{salary_data['pf_deduction']:.2f}"],
         ['', '', f"ESI (0.75%{' - N/A' if salary_data['basic_salary'] > 21000 else ''})", f"{salary_data['esi_deduction']:.2f}"],
         ['', '', 'Professional Tax', f"{salary_data['professional_tax']:.2f}"],
-        ['GROSS EARNINGS', f"{salary_data['gross_earnings']:.2f}", 'TOTAL DEDUCTIONS', f"{salary_data['total_all_deductions']:.2f}"],
+        ['GROSS SALARY', f"{salary_data['gross_salary']:.2f}", 'TOTAL DEDUCTIONS', f"{salary_data['total_all_deductions']:.2f}"],
         ['', '', 'NET SALARY', f"{salary_data['net_salary']:.0f}"]
     ]
     
@@ -231,7 +229,7 @@ def calculate_salary():
     try:
         # Get form data
         employee_name = request.form['employee_name']
-        basic_salary = float(request.form['basic_salary'])
+        salary_rate = float(request.form['salary_rate'])
         salary_month = int(request.form['salary_month'])
         salary_year = int(request.form['salary_year'])
         absent_days = int(request.form['absent_days'])
@@ -239,8 +237,8 @@ def calculate_salary():
         overtime_days = int(request.form['overtime_days'])
         
         # Validation
-        if basic_salary <= 0:
-            return jsonify({'error': 'Basic salary must be greater than 0'}), 400
+        if salary_rate <= 0:
+            return jsonify({'error': 'Salary rate must be greater than 0'}), 400
         if absent_days < 0 or late_entry_days < 0 or overtime_days < 0:
             return jsonify({'error': 'Days cannot be negative'}), 400
         if salary_month < 1 or salary_month > 12:
@@ -249,7 +247,7 @@ def calculate_salary():
             return jsonify({'error': 'Invalid year'}), 400
         
         # Calculate salary
-        calculator = SalaryCalculator(basic_salary, absent_days, late_entry_days, overtime_days, salary_month, salary_year)
+        calculator = SalaryCalculator(salary_rate, absent_days, late_entry_days, overtime_days, salary_month, salary_year)
         salary_data = calculator.calculate_total_salary()
         
         # Store in session or pass to template
@@ -267,7 +265,7 @@ def generate_pdf():
     try:
         # Get data from form
         employee_name = request.form['employee_name']
-        basic_salary = float(request.form['basic_salary'])
+        salary_rate = float(request.form['salary_rate'])
         salary_month = int(request.form['salary_month'])
         salary_year = int(request.form['salary_year'])
         absent_days = int(request.form['absent_days'])
@@ -275,7 +273,7 @@ def generate_pdf():
         overtime_days = int(request.form['overtime_days'])
         
         # Calculate salary
-        calculator = SalaryCalculator(basic_salary, absent_days, late_entry_days, overtime_days, salary_month, salary_year)
+        calculator = SalaryCalculator(salary_rate, absent_days, late_entry_days, overtime_days, salary_month, salary_year)
         salary_data = calculator.calculate_total_salary()
         
         # Generate PDF

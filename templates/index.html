@@ -418,17 +418,17 @@
                         <div class="error" id="name_error"></div>
                     </div>
 
-                    <!-- Basic Salary -->
+                    <!-- Salary Rate -->
                     <div class="form-group">
-                        <label for="basic_salary">
-                            Basic Salary (₹) <span class="required">*</span>
+                        <label for="salary_rate">
+                            Monthly Salary Rate (₹) <span class="required">*</span>
                         </label>
                         <div class="input-group">
                             <i class="fas fa-rupee-sign input-icon"></i>
                             <input type="number" 
-                                   id="basic_salary" 
-                                   name="basic_salary" 
-                                   placeholder="Enter basic salary"
+                                   id="salary_rate" 
+                                   name="salary_rate" 
+                                   placeholder="Enter monthly salary rate"
                                    min="1" 
                                    step="0.01" 
                                    required>
@@ -539,12 +539,12 @@
                 </h3>
                 <ul class="info-list">
                     <li class="info-item">
-                        <h4>Daily Salary</h4>
-                        <p>Basic salary divided by number of days in selected month</p>
+                        <h4>Daily Rate</h4>
+                        <p>Monthly salary rate divided by number of days in selected month</p>
                     </li>
                     <li class="info-item">
                         <h4>Absent Days</h4>
-                        <p>Full day salary deducted for each absent day</p>
+                        <p>Full day rate deducted for each absent day</p>
                     </li>
                     <li class="info-item">
                         <h4>Late Entry</h4>
@@ -552,15 +552,19 @@
                     </li>
                     <li class="info-item">
                         <h4>Overtime</h4>
-                        <p>Half day salary added for each overtime day</p>
+                        <p>Half day rate added for each overtime day</p>
+                    </li>
+                    <li class="info-item">
+                        <h4>Basic Salary</h4>
+                        <p>55% of gross salary (after attendance adjustments)</p>
                     </li>
                     <li class="info-item">
                         <h4>Provident Fund</h4>
-                        <p>12% of basic salary (maximum on ₹15,000)</p>
+                        <p>12% of actual basic salary (maximum on ₹15,000)</p>
                     </li>
                     <li class="info-item">
                         <h4>ESI</h4>
-                        <p>0.75% of basic salary (only if basic ≤ ₹21,000)</p>
+                        <p>0.75% of actual basic salary (only if basic ≤ ₹21,000)</p>
                     </li>
                     <li class="info-item">
                         <h4>Professional Tax</h4>
@@ -619,7 +623,7 @@
 
             // Clear all errors
             clearError('name_error', 'employee_name');
-            clearError('salary_error', 'basic_salary');
+            clearError('salary_error', 'salary_rate');
             clearError('month_error', 'salary_month');
             clearError('year_error', 'salary_year');
 
@@ -633,13 +637,13 @@
                 isValid = false;
             }
 
-            // Validate basic salary
-            const salary = parseFloat(document.getElementById('basic_salary').value);
+            // Validate salary rate
+            const salary = parseFloat(document.getElementById('salary_rate').value);
             if (!salary || salary <= 0) {
-                showError('salary_error', 'basic_salary', 'Please enter a valid salary amount');
+                showError('salary_error', 'salary_rate', 'Please enter a valid salary rate');
                 isValid = false;
             } else if (salary > 1000000) {
-                showError('salary_error', 'basic_salary', 'Salary amount seems too high');
+                showError('salary_error', 'salary_rate', 'Salary rate seems too high');
                 isValid = false;
             }
 
@@ -665,10 +669,10 @@
             }
         });
 
-        document.getElementById('basic_salary').addEventListener('input', function() {
+        document.getElementById('salary_rate').addEventListener('input', function() {
             const value = parseFloat(this.value);
             if (value > 0 && value <= 1000000) {
-                clearError('salary_error', 'basic_salary');
+                clearError('salary_error', 'salary_rate');
             }
         });
 

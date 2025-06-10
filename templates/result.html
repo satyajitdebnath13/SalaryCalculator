@@ -626,8 +626,8 @@
                 </div>
                 
                 <div class="calc-item">
-                    <span class="calc-label">Basic Salary</span>
-                    <span class="calc-value positive">₹{{ "%.2f"|format(salary_data.basic_salary) }}</span>
+                    <span class="calc-label">Monthly Salary Rate</span>
+                    <span class="calc-value positive">₹{{ "%.2f"|format(salary_data.salary_rate) }}</span>
                 </div>
                 
                 <div class="calc-item">
@@ -636,8 +636,13 @@
                 </div>
                 
                 <div class="calc-item">
-                    <span class="calc-label">Gross Earnings</span>
-                    <span class="calc-value">₹{{ "%.2f"|format(salary_data.gross_earnings) }}</span>
+                    <span class="calc-label">Gross Salary (After Attendance)</span>
+                    <span class="calc-value">₹{{ "%.2f"|format(salary_data.gross_salary) }}</span>
+                </div>
+                
+                <div class="calc-item">
+                    <span class="calc-label">Basic Salary (55% of Gross)</span>
+                    <span class="calc-value positive">₹{{ "%.2f"|format(salary_data.basic_salary) }}</span>
                 </div>
             </div>
 
@@ -704,22 +709,34 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Basic Salary</td>
-                        <td><span class="badge earnings">Earnings</span></td>
-                        <td class="amount">₹{{ "%.2f"|format(salary_data.basic_salary) }}</td>
-                        <td>Monthly basic salary</td>
+                        <td>Monthly Salary Rate</td>
+                        <td><span class="badge earnings">Base</span></td>
+                        <td class="amount">₹{{ "%.2f"|format(salary_data.salary_rate) }}</td>
+                        <td>Input monthly rate</td>
                     </tr>
                     <tr>
                         <td>Overtime Addition</td>
                         <td><span class="badge earnings">Earnings</span></td>
                         <td class="amount">₹{{ "%.2f"|format(salary_data.overtime_addition) }}</td>
-                        <td>{{ salary_data.overtime_days }} days × half day salary</td>
+                        <td>{{ salary_data.overtime_days }} days × half day rate</td>
+                    </tr>
+                    <tr style="background: var(--gray-50);">
+                        <td><strong>Gross Salary</strong></td>
+                        <td><span class="badge earnings">Gross</span></td>
+                        <td class="amount"><strong>₹{{ "%.2f"|format(salary_data.gross_salary) }}</strong></td>
+                        <td><strong>After attendance adjustments</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Basic Salary (55%)</td>
+                        <td><span class="badge earnings">Calculated</span></td>
+                        <td class="amount">₹{{ "%.2f"|format(salary_data.basic_salary) }}</td>
+                        <td>55% of gross salary</td>
                     </tr>
                     <tr>
                         <td>Absent Days Deduction</td>
                         <td><span class="badge deduction">Deduction</span></td>
                         <td class="amount">-₹{{ "%.2f"|format(salary_data.absent_deduction) }}</td>
-                        <td>{{ salary_data.absent_days }} days × full day salary</td>
+                        <td>{{ salary_data.absent_days }} days × full day rate</td>
                     </tr>
                     <tr>
                         <td>Late Entry Deduction</td>
@@ -731,13 +748,13 @@
                         <td>Provident Fund</td>
                         <td><span class="badge statutory">Statutory</span></td>
                         <td class="amount">-₹{{ "%.2f"|format(salary_data.pf_deduction) }}</td>
-                        <td>12% of basic salary (max on ₹15,000)</td>
+                        <td>12% of actual basic salary (max on ₹15,000)</td>
                     </tr>
                     <tr>
                         <td>Employee State Insurance</td>
                         <td><span class="badge statutory">Statutory</span></td>
                         <td class="amount">-₹{{ "%.2f"|format(salary_data.esi_deduction) }}</td>
-                        <td>0.75% of basic salary{% if salary_data.basic_salary > 21000 %} (N/A - exceeds ₹21,000){% endif %}</td>
+                        <td>0.75% of actual basic salary{% if salary_data.basic_salary > 21000 %} (N/A - exceeds ₹21,000){% endif %}</td>
                     </tr>
                     <tr>
                         <td>Professional Tax</td>
@@ -759,7 +776,7 @@
         <div class="actions">
             <form action="/generate_pdf" method="POST" style="display: inline;">
                 <input type="hidden" name="employee_name" value="{{ employee_name }}">
-                <input type="hidden" name="basic_salary" value="{{ salary_data.basic_salary }}">
+                <input type="hidden" name="salary_rate" value="{{ salary_data.salary_rate }}">
                 <input type="hidden" name="salary_month" value="{{ salary_data.month_number }}">
                 <input type="hidden" name="salary_year" value="{{ salary_data.year }}">
                 <input type="hidden" name="absent_days" value="{{ salary_data.absent_days }}">
