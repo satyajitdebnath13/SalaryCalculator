@@ -76,16 +76,16 @@ class SalaryCalculator:
     
     def calculate_total_salary(self):
         """Calculate the complete salary breakdown with corrected logic"""
-        # Step 1: Calculate attendance adjustments on salary rate
+        # Step 1: Calculate basic salary directly from monthly rate (55% of monthly rate)
+        actual_basic_salary = self.salary_rate * 0.55
+        
+        # Step 2: Calculate attendance adjustments on salary rate
         absent_deduction = self.calculate_absent_deduction()
         late_entry_deduction = self.calculate_late_entry_deduction()
         overtime_addition = self.calculate_overtime_addition()
         
-        # Step 2: Calculate gross salary after attendance adjustments
+        # Step 3: Calculate gross salary after attendance adjustments
         gross_salary = self.salary_rate + overtime_addition - absent_deduction - late_entry_deduction
-        
-        # Step 3: Calculate actual basic salary (55% of gross salary)
-        actual_basic_salary = gross_salary * 0.55
         
         # Step 4: Calculate statutory deductions on actual basic salary
         pf_deduction = self.calculate_pf(actual_basic_salary)
@@ -171,8 +171,8 @@ def generate_payslip_pdf(employee_name, salary_data):
     salary_breakdown = [
         ['EARNINGS', 'AMOUNT (₹)', 'DEDUCTIONS', 'AMOUNT (₹)'],
         ['Monthly Rate', f"{salary_data['salary_rate']:.2f}", 'Absent Days Deduction', f"{salary_data['absent_deduction']:.2f}"],
-        ['Overtime Addition', f"{salary_data['overtime_addition']:.2f}", 'Late Entry Deduction', f"{salary_data['late_entry_deduction']:.2f}"],
-        ['Basic (55% of Gross)', f"{salary_data['basic_salary']:.2f}", 'PF (12% on max ₹15K)', f"{salary_data['pf_deduction']:.2f}"],
+        ['Basic (55% of Rate)', f"{salary_data['basic_salary']:.2f}", 'Late Entry Deduction', f"{salary_data['late_entry_deduction']:.2f}"],
+        ['Overtime Addition', f"{salary_data['overtime_addition']:.2f}", 'PF (12% on max ₹15K)', f"{salary_data['pf_deduction']:.2f}"],
         ['', '', f"ESI (0.75%{' - N/A' if salary_data['salary_rate'] > 21000 else ''})", f"{salary_data['esi_deduction']:.2f}"],
         ['', '', 'Professional Tax', f"{salary_data['professional_tax']:.2f}"],
         ['GROSS SALARY', f"{salary_data['gross_salary']:.2f}", 'TOTAL DEDUCTIONS', f"{salary_data['total_all_deductions']:.2f}"],

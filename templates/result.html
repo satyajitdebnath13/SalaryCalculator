@@ -630,6 +630,11 @@
                     <span class="calc-value positive">₹{{ "%.2f"|format(salary_data.salary_rate) }}</span>
                 </div>
                 
+                <div class="calc-item" style="border-bottom: 1px solid var(--gray-300); padding-bottom: 10px; margin-bottom: 10px;">
+                    <span class="calc-label">Basic Salary (55% of Rate)</span>
+                    <span class="calc-value positive">₹{{ "%.2f"|format(salary_data.basic_salary) }}</span>
+                </div>
+                
                 <div class="calc-item">
                     <span class="calc-label">Overtime Addition</span>
                     <span class="calc-value positive">+₹{{ "%.2f"|format(salary_data.overtime_addition) }}</span>
@@ -652,11 +657,6 @@
                 <div class="calc-item" style="border-top: 2px solid var(--primary-color); margin-top: 10px; padding-top: 10px;">
                     <span class="calc-label"><strong>Gross Salary</strong></span>
                     <span class="calc-value" style="font-weight: bold; font-size: 1.1em;">₹{{ "%.2f"|format(salary_data.gross_salary) }}</span>
-                </div>
-                
-                <div class="calc-item">
-                    <span class="calc-label">Basic Salary (55% of Gross)</span>
-                    <span class="calc-value positive">₹{{ "%.2f"|format(salary_data.basic_salary) }}</span>
                 </div>
             </div>
 
@@ -718,6 +718,12 @@
                         <td class="amount">₹{{ "%.2f"|format(salary_data.salary_rate) }}</td>
                         <td>Input monthly rate</td>
                     </tr>
+                    <tr style="background: var(--gray-50);">
+                        <td><strong>Basic Salary (55%)</strong></td>
+                        <td><span class="badge calculated">Calculated</span></td>
+                        <td class="amount"><strong>₹{{ "%.2f"|format(salary_data.basic_salary) }}</strong></td>
+                        <td><strong>55% of monthly rate</strong></td>
+                    </tr>
                     <tr>
                         <td>Overtime Addition</td>
                         <td><span class="badge earnings">Addition</span></td>
@@ -745,12 +751,6 @@
                         <td><span class="badge gross">Gross</span></td>
                         <td class="amount"><strong>₹{{ "%.2f"|format(salary_data.gross_salary) }}</strong></td>
                         <td><strong>After attendance adjustments</strong></td>
-                    </tr>
-                    <tr>
-                        <td>Basic Salary (55%)</td>
-                        <td><span class="badge calculated">Calculated</span></td>
-                        <td class="amount">₹{{ "%.2f"|format(salary_data.basic_salary) }}</td>
-                        <td>55% of gross salary</td>
                     </tr>
                     <tr>
                         <td>Provident Fund</td>
